@@ -11,7 +11,8 @@ The application is being developed using Streamlit, SQLite, and scikit-learn as 
   - Responsible for API specifications and component interface definitions.
 - Kyrstin Henderson - Integration Lead
   - Responsible for integrating the AI features with the rest of the application.
-   Shared Responsibilities:
+
+Shared Responsibilities:
     - Creating and coordinating system diagrams.
 
 ## Tools Used:
