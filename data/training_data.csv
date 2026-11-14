@@ -1,0 +1,13 @@
+training_id,training_name,duration_hours,category,renewal_period_days,priority
+1,HIPAA Compliance,2,Compliance,365,High
+2,CPR Certification,4,Clinical,730,High
+3,Infection Control,3,Safety,365,High
+4,Emergency Response Procedures,4,Safety,365,Medium
+5,Patient Privacy Training,2,Compliance,365,High
+6,Workplace Violence Prevention,2,Safety,365,Medium
+7,Bloodborne Pathogens,3,Safety,365,High
+8,Electronic Health Records,2,Technology,365,Low
+9,Medication Safety,3,Clinical,365,High
+10,Fire Safety Training,2,Safety,365,Medium
+11,Cultural Competency,2,Compliance,365,Low
+12,Workplace Ethics,2,Compliance,365,Low
