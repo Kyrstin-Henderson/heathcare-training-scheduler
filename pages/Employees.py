@@ -24,6 +24,30 @@ def initialize_database():
             )
         """)
 
+def import_employees_from_csv():
+    csv_path = Path(__file__).resolve().parent.parent / "data" / "employees.csv"
+
+    employees = pd.read_csv(csv_path)
+
+    with get_connection() as conn:
+        for _, row in employees.iterrows():
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO employees
+                    (name, role, department, email)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (
+                        row["name"],
+                        row["role"],
+                        row["department"],
+                        row["email"],
+                    ),
+                )
+            except sqlite3.IntegrityError:
+                pass
+
 
 def add_employee(name, role, department, email):
     with get_connection() as conn:
@@ -49,6 +73,14 @@ def get_employees():
 # Create the employee table if needed
 initialize_database()
 
+count = pd.read_sql_query(
+    "SELECT COUNT(*) AS count FROM employees",
+    get_connection()
+)
+
+if count.iloc[0]["count"] == 0:
+    import_employees_from_csv()
+
 st.title("Employee Management")
 st.write("Manage healthcare employees and their information.")
 
@@ -58,11 +90,11 @@ with st.form("employee_form"):
     name = st.text_input("Employee Name")
     role = st.selectbox(
         "Job Role",
-        ["Nurse", "Doctor", "Medical Assistant", "Technician", "Other"]
+        ["Registered Nurse", "Physician", "Lab Technician", "Radiology Technician", "Other"]
     )
     department = st.selectbox(
         "Department",
-        ["Emergency", "Surgery", "Pediatrics", "General", "Other"]
+        ["Emergency", "Surgery", "Pediatrics", "Administration", "Radiology", "ICU", "Laboratory", "Cardiology", "Other"]
     )
     email = st.text_input("Email Address")
 
@@ -87,13 +119,42 @@ with st.form("employee_form"):
             except sqlite3.Error:
                 st.error("Could not save employee. Please try again.")
 
-st.subheader("Employee List")
+st.subheader(f"Employee List - {count.iloc[0]['count']} Employees")
 
 try:
     employees = get_employees()
 
     if not employees.empty:
-        st.dataframe(employees, use_container_width=True)
+        search = st.text_input("Search Employee")
+
+        department_filter = st.selectbox(
+            "Department",
+            ["All"] + sorted(employees["Department"].unique().tolist())
+        )
+
+        filtered_employees = employees.copy()
+
+        if search:
+            filtered_employees = filtered_employees[
+                filtered_employees["Name"].str.contains(
+                    search,
+                    case=False,
+                    na=False
+                )
+            ]
+
+        if department_filter != "All":
+            filtered_employees = filtered_employees[
+                filtered_employees["Department"] == department_filter
+            ]
+
+        filtered_employees.index = range(1, len(filtered_employees) + 1)
+        filtered_employees.index.name = "Employee #"
+
+        st.dataframe(
+            filtered_employees,
+            use_container_width=True
+        )
     else:
         st.info("No employees have been added yet.")
 except sqlite3.Error:
