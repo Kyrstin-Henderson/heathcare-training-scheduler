@@ -175,3 +175,11 @@ print(
     f"Generated {len(records)} records "
     f"into {OUTPUT_FILE.name}"
 )
+
+def generate_data():
+    # generation logic
+    pass
+
+
+if __name__ == "__main__":
+    generate_data()
