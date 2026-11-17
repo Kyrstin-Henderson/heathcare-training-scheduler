@@ -71,7 +71,7 @@ for employee_id, employee in enumerate(employees, start=1):
             )
 
             due_date = assigned_date + timedelta(days=60)
-
+                        
             # Historical years = completed
             if year < 2026:
 
@@ -125,6 +125,11 @@ for employee_id, employee in enumerate(employees, start=1):
                     completion_date.strftime("%Y-%m-%d")
                 )
 
+            history_completion = None
+
+            if completion_date and isinstance(completion_date, datetime):
+                history_completion = completion_date
+                
             records.append(
                 {
                     "record_id": record_id,
@@ -143,7 +148,62 @@ for employee_id, employee in enumerate(employees, start=1):
                 }
             )
 
-            record_id += 1
+
+records.sort(
+    key=lambda record: (
+        record["employee_id"],
+        record["assigned_date"]
+    )
+)
+
+employee_history = {}
+
+for record in records:
+
+    employee_id = record["employee_id"]
+
+    assigned_date = datetime.strptime(
+        record["assigned_date"],
+        "%Y-%m-%d"
+    )
+
+    active_count = 0
+
+    if employee_id in employee_history:
+
+        for previous in employee_history[employee_id]:
+
+            completion_date = previous["completion_date"]
+
+            if completion_date is None:
+                active_count += 1
+
+            elif completion_date > assigned_date:
+                active_count += 1
+
+    record["active_training_count"] = active_count
+
+    #
+    # Store this training for future checks
+    #
+    completion = None
+
+    if record["completion_date"]:
+
+        completion = datetime.strptime(
+            record["completion_date"],
+            "%Y-%m-%d"
+        )
+
+    employee_history.setdefault(
+        employee_id,
+        []
+    ).append(
+        {
+            "completion_date": completion
+        }
+    )
+
 
 with open(
     OUTPUT_FILE,
@@ -161,6 +221,7 @@ with open(
         "completion_date",
         "status",
         "days_early_late",
+        "active_training_count",
     ]
 
     writer = csv.DictWriter(
