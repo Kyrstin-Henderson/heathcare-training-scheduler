@@ -142,19 +142,26 @@ if employees.empty:
 
 else:
 
+      employee_options = {
+        int(row["id"]): f"{row['name']} - {row['role']}"
+        for _, row in employees.iterrows()
+    }
+
+    employee_id = st.selectbox(
+        "Select Employee",
+        options=list(employee_options.keys()),
+        format_func=lambda emp_id: employee_options[emp_id]
+    )
+
+    selected_employee = employees[
+        employees["id"] == employee_id
+    ].iloc[0]
+
+    department = selected_employee["department"]
+
+    st.write(f"Department: {department}")
+
     with st.form("schedule_form"):
-
-        employee_options = {
-            int(row["id"]): f"{row['name']} - {row['role']}"
-            for _, row in employees.iterrows()
-        }
-
-        employee_id = st.selectbox(
-            "Select Employee",
-            options=list(employee_options.keys()),
-            format_func=lambda emp_id: employee_options[emp_id]
-        )
-
         shift_date = st.date_input("Shift Date")
 
         start_time = st.time_input(
@@ -167,13 +174,7 @@ else:
             value=datetime.strptime("16:00", "%H:%M").time()
         )
 
-        selected_employee = employees[
-            employees["id"] == employee_id
-        ].iloc[0]
-
-        department = selected_employee["department"]
-
-        st.write(f"Department: {department}")
+    
 
         submitted = st.form_submit_button("Save Schedule")
 
