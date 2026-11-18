@@ -142,7 +142,7 @@ if employees.empty:
 
 else:
 
-      employee_options = {
+    employee_options = {
         int(row["id"]): f"{row['name']} - {row['role']}"
         for _, row in employees.iterrows()
     }
